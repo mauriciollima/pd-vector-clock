@@ -82,7 +82,9 @@ async function start() {
         var random = Math.floor(Math.random() * 20);
         if (chance > random) {
             messageEvent(getRandomNodo(), i)
-            await sleep(3000)
+            await sleep(3321)
+        }else{
+            await sleep(3123)
         }
     }
     console.log(JSON.stringify(clocks))

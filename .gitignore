@@ -1,5 +1,4 @@
 # Logs
-# Logs
 logs
 *.log
 npm-debug.log*
@@ -109,4 +108,3 @@ build
 npm-debug.log
 .env
 .DS_Store
-.idea

@@ -1,0 +1,10 @@
+{
+  "id": "0",
+  "host": "localhost",
+  "port": 8080,
+  "chance": 1,
+  "events": 100,
+  "minDelay": 200,
+  "maxDelay": 500,
+  "nodos": ["8081","8082"]
+}

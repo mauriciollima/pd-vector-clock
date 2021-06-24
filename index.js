@@ -2,11 +2,14 @@ const config = require("./config.json")
 const dgram = require('dgram');
 const udpSocket = dgram.createSocket('udp4');
 
+// Change the number to run another process
+// Available = [0,1,2]
+let process = 0;
 
-let chance = config.chance;
-let port = config.port;
-let id = config.id;
-let nodos = config.nodos;
+let chance = config[process].chance;
+let port = config[process].port;
+let id = config[process].id;
+let nodos = config[process].nodos;
 
 let localClock = 0;
 
@@ -24,13 +27,13 @@ function getRandomNodo() {
 function incrementLocalClock() {
     console.log('incrementing local clock')
     localClock++;
-    if(id === '0'){
+    if (id === '0') {
         clocks.p0 = localClock
     }
-    if(id === '1'){
+    if (id === '1') {
         clocks.p1 = localClock
     }
-    if(id === '2'){
+    if (id === '2') {
         clocks.p2 = localClock
     }
     console.log('localClock: ' + localClock)
@@ -39,13 +42,13 @@ function incrementLocalClock() {
 function messageEvent(port, i) {
     console.log('Sending message to: ' + port);
     incrementLocalClock()
-    if(id === '0'){
+    if (id === '0') {
         clocks.p0 = localClock
     }
-    if(id === '1'){
+    if (id === '1') {
         clocks.p1 = localClock
     }
-    if(id === '2'){
+    if (id === '2') {
         clocks.p2 = localClock
     }
 
@@ -82,7 +85,10 @@ async function start() {
         var random = Math.floor(Math.random() * 20);
         if (chance > random) {
             messageEvent(getRandomNodo(), i)
-            await sleep(3000)
+            await sleep(3234)
+        } else {
+            localEvent();
+            await sleep(3123)
         }
     }
     console.log(JSON.stringify(clocks))
@@ -101,7 +107,7 @@ udpSocket.on('message', (msg, rinfo) => {
 
 udpSocket.on('listening', () => {
     const address = udpSocket.address();
-    console.log(config)
+    console.log(config[process])
     console.log(`server listening ${address.address}:${address.port}`);
     start();
 });

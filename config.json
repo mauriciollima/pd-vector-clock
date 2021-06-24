@@ -1,10 +1,41 @@
-{
-  "id": "0",
-  "host": "localhost",
-  "port": 8080,
-  "chance": 1,
-  "events": 100,
-  "minDelay": 200,
-  "maxDelay": 500,
-  "nodos": ["8081","8082"]
-}
+[
+  {
+    "id": "0",
+    "host": "localhost",
+    "port": 8080,
+    "chance": 1,
+    "events": 100,
+    "minDelay": 200,
+    "maxDelay": 500,
+    "nodos": [
+      "8081",
+      "8082"
+    ]
+  },
+  {
+    "id": "1",
+    "host": "localhost",
+    "port": 8081,
+    "chance": 1,
+    "events": 100,
+    "minDelay": 200,
+    "maxDelay": 500,
+    "nodos": [
+      "8080",
+      "8082"
+    ]
+  },
+  {
+    "id": "2",
+    "host": "localhost",
+    "port": 8082,
+    "chance": 1,
+    "events": 100,
+    "minDelay": 200,
+    "maxDelay": 500,
+    "nodos": [
+      "8080",
+      "8081"
+    ]
+  }
+]

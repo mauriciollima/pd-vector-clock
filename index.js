@@ -2,7 +2,9 @@ const config = require("./config.json")
 const dgram = require('dgram');
 const udpSocket = dgram.createSocket('udp4');
 
-let localIp = config.localIp
+
+let multicastIp = config.multicastIp;
+let localIp = config.localIp;
 let chance = config.chance;
 let port = config.port;
 let id = config.id;
@@ -22,7 +24,7 @@ function getRandomNodo() {
 }
 
 function incrementLocalClock() {
-    console.log('incrementing local clock')
+    console.log('Incrementing local clock')
     localClock++;
     if (id === '0') {
         clocks.p0 = localClock
@@ -33,11 +35,11 @@ function incrementLocalClock() {
     if (id === '2') {
         clocks.p2 = localClock
     }
-    console.log('localClock: ' + localClock)
+    console.log('->localClock: ' + localClock)
 }
 
 function messageEvent(port, i) {
-    console.log('Sending message to: ' + port);
+    console.log('Message Event ');
     incrementLocalClock()
     if (id === '0') {
         clocks.p0 = localClock
@@ -49,15 +51,18 @@ function messageEvent(port, i) {
         clocks.p2 = localClock
     }
 
-    const message = new Buffer.from(JSON.stringify(clocks));
+    let strClocks = JSON.stringify(clocks)
+
+    console.log('===> Sending message ' + strClocks + ' to: ' + port);
+    const message = new Buffer.from(strClocks);
     udpSocket.send(message, 0, message.length, port, 'localhost', (err) => {
 
     });
 }
 
 function localEvent() {
+    console.log('Local event')
     incrementLocalClock()
-    console.log('local event')
 }
 
 function refreshClock(msg) {
@@ -74,7 +79,7 @@ function refreshClock(msg) {
         console.log('p2 refresh')
         clocks.p2 = msg.p2
     }
-    console.log('local clock: ' + JSON.stringify(clocks))
+    console.log('->local clock: ' + JSON.stringify(clocks))
 }
 
 async function start() {
@@ -82,13 +87,13 @@ async function start() {
         var random = Math.floor(Math.random() * 20);
         if (chance > random) {
             messageEvent(getRandomNodo(), i)
-            await sleep(3321)
+            await sleep(250)
         } else {
             localEvent()
-            await sleep(3123)
+            await sleep(300)
         }
     }
-    console.log(JSON.stringify(clocks))
+    console.log('Final clock: ' + JSON.stringify(clocks))
 }
 
 udpSocket.on('error', (err) => {
@@ -97,7 +102,7 @@ udpSocket.on('error', (err) => {
 });
 
 udpSocket.on('message', (msg, rinfo) => {
-    console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log(`<=== Got message: ${msg} from ${rinfo.address}:${rinfo.port}`);
     incrementLocalClock();
     refreshClock(JSON.parse(Buffer.from(msg)))
 });
@@ -105,7 +110,7 @@ udpSocket.on('message', (msg, rinfo) => {
 udpSocket.on('listening', () => {
     const address = udpSocket.address();
     console.log(config)
-    console.log(`server listening ${address.address}:${address.port}`);
+    console.log(`Socket listening ${address.address}:${address.port}`);
     listenMulticast()
 
 });
@@ -115,25 +120,22 @@ udpSocket.bind(port);
 function listenMulticast() {
     //Multicast Client receiving sent messages
     var PORT = 41848;
-    var MCAST_ADDR = config; //same mcast address as Server
-    var HOST = '192.168.15.24'; //this is your own IP
+    var MCAST_ADDR = multicastIp //same mcast address as Server
+    var HOST = localIp; //this is your own IP
     var dgram = require('dgram');
     var client = dgram.createSocket({type: 'udp4', reuseAddr: true})
 
     client.on('listening', function () {
         var address = client.address();
-        console.log('UDP Client listening on ' + address.address + ":" + address.port);
+        console.log('Multicast listening ' + address.address + ":" + address.port);
         client.setBroadcast(true)
         client.setMulticastTTL(128);
         client.addMembership(MCAST_ADDR);
     });
 
     client.on('message', function (message, remote) {
-        console.log('MCast Msg: From: ' + remote.address + ':' + remote.port + ' - ' + message);
+        console.log('Multicast message from: ' + remote.address + ':' + remote.port + ' - ' + message);
         start();
     });
-
     client.bind(PORT, HOST);
 }
-
-

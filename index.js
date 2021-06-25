@@ -2,7 +2,7 @@ const config = require("./config.json")
 const dgram = require('dgram');
 const udpSocket = dgram.createSocket('udp4');
 
-
+let localIp = config.localIp
 let chance = config.chance;
 let port = config.port;
 let id = config.id;
@@ -24,13 +24,13 @@ function getRandomNodo() {
 function incrementLocalClock() {
     console.log('incrementing local clock')
     localClock++;
-    if(id === '0'){
+    if (id === '0') {
         clocks.p0 = localClock
     }
-    if(id === '1'){
+    if (id === '1') {
         clocks.p1 = localClock
     }
-    if(id === '2'){
+    if (id === '2') {
         clocks.p2 = localClock
     }
     console.log('localClock: ' + localClock)
@@ -39,13 +39,13 @@ function incrementLocalClock() {
 function messageEvent(port, i) {
     console.log('Sending message to: ' + port);
     incrementLocalClock()
-    if(id === '0'){
+    if (id === '0') {
         clocks.p0 = localClock
     }
-    if(id === '1'){
+    if (id === '1') {
         clocks.p1 = localClock
     }
-    if(id === '2'){
+    if (id === '2') {
         clocks.p2 = localClock
     }
 
@@ -83,7 +83,8 @@ async function start() {
         if (chance > random) {
             messageEvent(getRandomNodo(), i)
             await sleep(3321)
-        }else{
+        } else {
+            localEvent()
             await sleep(3123)
         }
     }
@@ -105,7 +106,34 @@ udpSocket.on('listening', () => {
     const address = udpSocket.address();
     console.log(config)
     console.log(`server listening ${address.address}:${address.port}`);
-    start();
+    listenMulticast()
+
 });
 
 udpSocket.bind(port);
+
+function listenMulticast() {
+    //Multicast Client receiving sent messages
+    var PORT = 41848;
+    var MCAST_ADDR = config; //same mcast address as Server
+    var HOST = '192.168.15.24'; //this is your own IP
+    var dgram = require('dgram');
+    var client = dgram.createSocket({type: 'udp4', reuseAddr: true})
+
+    client.on('listening', function () {
+        var address = client.address();
+        console.log('UDP Client listening on ' + address.address + ":" + address.port);
+        client.setBroadcast(true)
+        client.setMulticastTTL(128);
+        client.addMembership(MCAST_ADDR);
+    });
+
+    client.on('message', function (message, remote) {
+        console.log('MCast Msg: From: ' + remote.address + ':' + remote.port + ' - ' + message);
+        start();
+    });
+
+    client.bind(PORT, HOST);
+}
+
+

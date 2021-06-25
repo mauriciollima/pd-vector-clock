@@ -1,8 +1,9 @@
 {
+  "localIp": "192.168.15.24",
   "id": "0",
   "host": "localhost",
   "port": 8080,
-  "chance": 1,
+  "chance": 3,
   "events": 100,
   "minDelay": 200,
   "maxDelay": 500,

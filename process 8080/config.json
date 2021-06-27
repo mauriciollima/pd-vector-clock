@@ -6,7 +6,7 @@
   "port": 8080,
   "chance": 3,
   "events": 100,
-  "minDelay": 200,
-  "maxDelay": 500,
+  "minDelay": 300,
+  "maxDelay": 750,
   "nodos": ["8081","8082"]
 }

@@ -24,62 +24,54 @@ function getRandomNodo() {
 }
 
 function incrementLocalClock() {
-    console.log('Incrementing local clock')
+    //console.log('Incrementing local clock')
     localClock++;
-    if (id === '0') {
-        clocks.p0 = localClock
-    }
-    if (id === '1') {
-        clocks.p1 = localClock
-    }
-    if (id === '2') {
-        clocks.p2 = localClock
-    }
-    console.log('->localClock: ' + localClock)
+    setLocalClock();
+    //console.log('->localClock: ' + localClock)
 }
 
 function messageEvent(port, i) {
-    console.log('Message Event ');
-    incrementLocalClock()
-    if (id === '0') {
-        clocks.p0 = localClock
-    }
-    if (id === '1') {
-        clocks.p1 = localClock
-    }
-    if (id === '2') {
-        clocks.p2 = localClock
-    }
-
+    setLocalClock();
     let strClocks = JSON.stringify(clocks)
-
-    console.log('<=== Sending message ' + strClocks + ' to: ' + port);
+    console.log('<=== ' + id + ' Sending message ' + strClocks + ' to: ' + port.substr(3,3));
     const message = new Buffer.from(strClocks);
     udpSocket.send(message, 0, message.length, port, 'localhost', (err) => {
 
     });
 }
 
+function setLocalClock() {
+    if (id === '0') {
+        clocks.p0 = localClock
+    }
+    if (id === '1') {
+        clocks.p1 = localClock
+    }
+    if (id === '2') {
+        clocks.p2 = localClock
+    }
+}
+
 function localEvent() {
-    console.log('Local event')
     incrementLocalClock()
+    console.log(id +' Local event: ' + JSON.stringify(clocks));
 }
 
 function refreshClock(msg) {
-    console.log('refreshing clock')
+    //console.log('refreshing clock')
     if (parseInt(msg.p0) > parseInt(clocks.p0) && id !== '0') {
-        console.log('p0 refresh')
+        //console.log('p0 refresh')
         clocks.p0 = msg.p0
     }
     if (parseInt(msg.p1) > parseInt(clocks.p1) && id !== '1') {
-        console.log('p1 refresh')
+        //console.log('p1 refresh')
         clocks.p1 = msg.p1
     }
     if (parseInt(msg.p2) > parseInt(clocks.p2) && id !== '2') {
-        console.log('p2 refresh')
+        //console.log('p2 refresh')
         clocks.p2 = msg.p2
     }
-    console.log('->local clock: ' + JSON.stringify(clocks))
+    //console.log('->local clock: ' + JSON.stringify(clocks))
 }
 
 async function start() {
@@ -87,10 +79,10 @@ async function start() {
         var random = Math.floor(Math.random() * 20);
         if (chance > random) {
             messageEvent(getRandomNodo(), i)
-            await sleep(250)
+            await sleep(config.minDelay)
         } else {
             localEvent()
-            await sleep(300)
+            await sleep(config.maxDelay)
         }
     }
     console.log('Final clock: ' + JSON.stringify(clocks))
@@ -102,7 +94,7 @@ udpSocket.on('error', (err) => {
 });
 
 udpSocket.on('message', (msg, rinfo) => {
-    console.log(`===> Got message: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log('===> ' + id + ` Got message: ${msg} from: ` + rinfo.port.toString().substr(3,3));
     incrementLocalClock();
     refreshClock(JSON.parse(Buffer.from(msg)))
 });

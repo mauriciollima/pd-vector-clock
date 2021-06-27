@@ -1,0 +1,12 @@
+{
+  "multicastIp": "230.185.192.108",
+  "localIp": "192.168.15.24",
+  "id": "1",
+  "host": "localhost",
+  "port": 8081,
+  "chance": 3,
+  "events": 100,
+  "minDelay": 200,
+  "maxDelay": 500,
+  "nodos": ["8080","8082"]
+}

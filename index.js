@@ -53,7 +53,7 @@ function messageEvent(port, i) {
 
     let strClocks = JSON.stringify(clocks)
 
-    console.log('===> Sending message ' + strClocks + ' to: ' + port);
+    console.log('<=== Sending message ' + strClocks + ' to: ' + port);
     const message = new Buffer.from(strClocks);
     udpSocket.send(message, 0, message.length, port, 'localhost', (err) => {
 
@@ -102,7 +102,7 @@ udpSocket.on('error', (err) => {
 });
 
 udpSocket.on('message', (msg, rinfo) => {
-    console.log(`<=== Got message: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    console.log(`===> Got message: ${msg} from ${rinfo.address}:${rinfo.port}`);
     incrementLocalClock();
     refreshClock(JSON.parse(Buffer.from(msg)))
 });
@@ -137,5 +137,5 @@ function listenMulticast() {
         console.log('Multicast message from: ' + remote.address + ':' + remote.port + ' - ' + message);
         start();
     });
-    client.bind(PORT, HOST);
+    client.bind(PORT);
 }
